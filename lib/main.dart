@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
+
+import 'data/app_database.dart';
+import 'data/tarea_repository.dart';
 import 'screens/tareas_page.dart';
 
 void main() {
-  runApp(const GestorTareasApp());
+  final database = AppDatabase();
+  final repository = TareaRepository(database);
+
+  runApp(GestorTareasApp(database: database, repository: repository));
 }
 
-/// Punto de entrada de la aplicación.
-/// La configuración del almacenamiento se agregará como parte de la tarea.
-class GestorTareasApp extends StatelessWidget {
-  const GestorTareasApp({super.key});
+class GestorTareasApp extends StatefulWidget {
+  final AppDatabase database;
+  final TareaRepository repository;
+
+  const GestorTareasApp({
+    super.key,
+    required this.database,
+    required this.repository,
+  });
+
+  @override
+  State<GestorTareasApp> createState() => _GestorTareasAppState();
+}
+
+class _GestorTareasAppState extends State<GestorTareasApp> {
+  @override
+  void dispose() {
+    widget.database.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +41,7 @@ class GestorTareasApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const TareasPage(),
+      home: TareasPage(repository: widget.repository),
     );
   }
 }
